@@ -1,0 +1,27 @@
+Module réseau (network.tf):
+
+    Nous définissons des variables pour ce module. Les variables permettent de personnaliser les valeurs lors de l'utilisation du module.
+        resource_group_name: Le nom du groupe de ressources que vous souhaitez créer.
+        location: L'emplacement Azure où vous souhaitez déployer les ressources. Par défaut, il est défini sur "East US".
+        vnet_name: Le nom de la VNet que vous souhaitez créer.
+        vnet_address_space: L'espace d'adressage de la VNet, généralement sous la forme d'une liste de plages IP. Par défaut, il est défini sur ["10.0.0.0/16"].
+
+    Nous utilisons azurerm_resource_group pour créer un groupe de ressources Azure avec le nom et l'emplacement spécifiés.
+
+    Ensuite, nous utilisons azurerm_virtual_network pour créer une VNet avec le nom, l'espace d'adressage, l'emplacement et le groupe de ressources spécifiés.
+
+    Nous définissons une sortie (output) appelée vnet_id pour renvoyer l'ID de la VNet créée. Cette sortie sera utilisée plus tard lorsque nous créerons le cluster AKS.
+
+Utilisation du module réseau (main.tf):
+
+    Nous utilisons le module réseau en spécifiant son chemin d'accès avec source = "./network" (vous devrez adapter cela en fonction de l'emplacement réel de votre module).
+
+    Nous fournissons les valeurs des variables du module, telles que resource_group_name, vnet_name, et vnet_address_space, pour personnaliser la création du groupe de ressources et de la VNet.
+
+    Nous configurons le fournisseur Azure avec provider "azurerm". Cela indique à Terraform d'utiliser le plugin Azure pour gérer les ressources Azure.
+
+    Nous utilisons azurerm_kubernetes_cluster pour créer un cluster AKS. Les paramètres du cluster, tels que le nom, l'emplacement, le groupe de ressources, le préfixe DNS, etc., sont configurés en fonction des valeurs renvoyées par le module réseau.
+
+    La section network_profile dans la ressource AKS indique que nous utilisons le plugin réseau Azure CNI (Container Network Interface) pour gérer le réseau du cluster AKS. Nous utilisons également l'espace d'adressage et l'adresse IP DNS spécifiés par défaut.
+
+Une fois que vous avez configuré ces fichiers, exécutez terraform init pour initialiser votre projet Terraform, puis exécutez terraform apply pour déployer l'infrastructure sur Azure. Terraform gérera la création du groupe de ressources, de la VNet et du cluster AKS en utilisant les valeurs que vous avez définies.
